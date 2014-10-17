@@ -1196,6 +1196,8 @@ namespace karto
 
     LocalizedRangeScanVector candidateChain = FindPossibleLoopClosure(pScan, rSensorName, scanIndex);
 
+    best_response_ = 0.0;
+
     while (!candidateChain.empty())
     {
       Pose2 bestPose;
@@ -1206,6 +1208,9 @@ namespace karto
       stream << "COARSE RESPONSE: " << coarseResponse << " (> " << m_pMapper->m_pLoopMatchMinimumResponseCoarse->GetValue() << ")" << std::endl;
       stream << "            var: " << covariance(0, 0) << ",  " << covariance(1, 1) << " (< " << m_pMapper->m_pLoopMatchMaximumVarianceCoarse->GetValue() << ")";
       m_pMapper->FireLoopClosureCheck(stream.str());
+
+      if(coarseResponse > best_response_)
+        best_response_ = coarseResponse;
 
       if ((coarseResponse > m_pMapper->m_pLoopMatchMinimumResponseCoarse->GetValue()) &&
           (covariance(0, 0) < m_pMapper->m_pLoopMatchMaximumVarianceCoarse->GetValue()) &&
