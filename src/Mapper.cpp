@@ -1098,6 +1098,8 @@ namespace karto
     assert(m_pLoopScanMatcher);
 
     m_pTraversal = new BreadthFirstTraversal<LocalizedRangeScan>(this);
+
+    best_response_=0.0;
   }
 
   MapperGraph::~MapperGraph()
@@ -1107,6 +1109,11 @@ namespace karto
 
     delete m_pTraversal;
     m_pTraversal = NULL;
+  }
+
+  double MapperGraph::GetLoopClosureResponse()
+  {
+    return best_response_;
   }
 
   void MapperGraph::AddVertex(LocalizedRangeScan* pScan)
@@ -1351,6 +1358,7 @@ namespace karto
     if (squaredDistance < math::Square(m_pMapper->m_pLinkScanMaximumDistance->GetValue()) + KT_TOLERANCE)
     {
       LinkScans(pClosestScan, pScan, rMean, rCovariance);
+      CorrectPoses(); // Liz changed
     }
   }
 

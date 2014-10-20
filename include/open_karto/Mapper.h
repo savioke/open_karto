@@ -564,7 +564,7 @@ namespace karto
     /**
      * Get the most recent loop closure response
      */
-    double GetLoopClosureResponse(){return best_response_;};
+    double GetLoopClosureResponse();
    
     /**
      * Adds a vertex representing the given scan to the graph
@@ -1657,7 +1657,7 @@ namespace karto
      * Return the most recent value of the best response, for feedback while mapping online
      */
 
-    double GetLoopClosureResponse(){ return m_pGraph->GetLoopClosureResponse(); };
+    double GetLoopClosureResponse(){if(m_Initialized) return m_pGraph->GetLoopClosureResponse(); };
 
   private:
     kt_bool m_Initialized;
