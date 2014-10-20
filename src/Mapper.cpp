@@ -1358,7 +1358,7 @@ namespace karto
     if (squaredDistance < math::Square(m_pMapper->m_pLinkScanMaximumDistance->GetValue()) + KT_TOLERANCE)
     {
       LinkScans(pClosestScan, pScan, rMean, rCovariance);
-      CorrectPoses(); // Liz changed
+      //CorrectPoses(); // Liz changed
     }
   }
 
