@@ -2,8 +2,8 @@
 Changelog for package open_karto
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+101.1.1 (2014-10-24)
+--------------------
 * Update version to 101
   We'll use 100+version for the savioke version, so that it
   gets installed on our systems.
