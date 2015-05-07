@@ -1098,8 +1098,6 @@ namespace karto
     assert(m_pLoopScanMatcher);
 
     m_pTraversal = new BreadthFirstTraversal<LocalizedRangeScan>(this);
-
-    best_response_=0.0;
   }
 
   MapperGraph::~MapperGraph()
@@ -1109,11 +1107,6 @@ namespace karto
 
     delete m_pTraversal;
     m_pTraversal = NULL;
-  }
-
-  double MapperGraph::GetLoopClosureResponse()
-  {
-    return best_response_;
   }
 
   void MapperGraph::AddVertex(LocalizedRangeScan* pScan)
@@ -1203,8 +1196,6 @@ namespace karto
 
     LocalizedRangeScanVector candidateChain = FindPossibleLoopClosure(pScan, rSensorName, scanIndex);
 
-    best_response_ = 0.0;
-
     while (!candidateChain.empty())
     {
       Pose2 bestPose;
@@ -1215,9 +1206,6 @@ namespace karto
       stream << "COARSE RESPONSE: " << coarseResponse << " (> " << m_pMapper->m_pLoopMatchMinimumResponseCoarse->GetValue() << ")" << std::endl;
       stream << "            var: " << covariance(0, 0) << ",  " << covariance(1, 1) << " (< " << m_pMapper->m_pLoopMatchMaximumVarianceCoarse->GetValue() << ")";
       m_pMapper->FireLoopClosureCheck(stream.str());
-
-      if(coarseResponse > best_response_)
-        best_response_ = coarseResponse;
 
       if ((coarseResponse > m_pMapper->m_pLoopMatchMinimumResponseCoarse->GetValue()) &&
           (covariance(0, 0) < m_pMapper->m_pLoopMatchMaximumVarianceCoarse->GetValue()) &&
@@ -1358,7 +1346,6 @@ namespace karto
     if (squaredDistance < math::Square(m_pMapper->m_pLinkScanMaximumDistance->GetValue()) + KT_TOLERANCE)
     {
       LinkScans(pClosestScan, pScan, rMean, rCovariance);
-      //CorrectPoses(); // Liz changed
     }
   }
 

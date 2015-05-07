@@ -562,11 +562,6 @@ namespace karto
 
   public:
     /**
-     * Get the most recent loop closure response
-     */
-    double GetLoopClosureResponse();
-   
-    /**
      * Adds a vertex representing the given scan to the graph
      * @param pScan
      */
@@ -686,7 +681,6 @@ namespace karto
      */
     void CorrectPoses();
 
-    
   private:
     /**
      * Mapper of this graph
@@ -702,11 +696,6 @@ namespace karto
      * Traversal algorithm to find near linked scans
      */
     GraphTraversal<LocalizedRangeScan>* m_pTraversal;
-
-    /**
-     * Cache the best response from loop closing, useful for feedback in online mapping
-     */
-    double best_response_;
   }; // MapperGraph
 
   ////////////////////////////////////////////////////////////////////////////////////////
@@ -1653,12 +1642,6 @@ namespace karto
   public:
     void SetUseScanMatching(kt_bool val) { m_pUseScanMatching->SetValue(val); }
 
-    /**
-     * Return the most recent value of the best response, for feedback while mapping online
-     */
-
-    double GetLoopClosureResponse(){if(m_Initialized) return m_pGraph->GetLoopClosureResponse(); };
-
   private:
     kt_bool m_Initialized;
 
@@ -1670,6 +1653,7 @@ namespace karto
     ScanSolver* m_pScanOptimizer;
 
     std::vector<MapperListener*> m_Listeners;
+
 
     /**
      * When set to true, the mapper will use a scan matching algorithm. In most real-world situations
