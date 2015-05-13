@@ -2,6 +2,13 @@
 Changelog for package open_karto
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#1 <https://github.com/savioke/open_karto/issues/1>`_ from liz-murphy/first_point_nan
+  Removes useless best loop closure response functions in prep for upst…
+* Removes useless best loop closure response functions in prep for upstream PR
+* Contributors: Stephan, liz-murphy
+
 101.1.1 (2014-10-24)
 --------------------
 * Update version to 101
