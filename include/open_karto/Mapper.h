@@ -20,6 +20,7 @@
 
 #include <map>
 #include <vector>
+#include <stack>
 
 #include <open_karto/Karto.h>
 
@@ -472,6 +473,7 @@ namespace karto
     inline void AddVertex(const Name& rName, Vertex<T>* pVertex)
     {
       m_Vertices[rName].push_back(pVertex);
+      m_VerticesInOrder.push(pVertex);
     }
 
     /**
@@ -481,6 +483,62 @@ namespace karto
     inline void AddEdge(Edge<T>* pEdge)
     {
       m_Edges.push_back(pEdge);
+    }
+
+    /**
+     * Remove all edges adjacent to a specified Vertex
+     */
+    inline void RemoveAdjacentEdges(const Vertex<T>* vertex)
+    {
+      for(typename std::vector<Edge<T>*>::iterator it = m_Edges.begin(); it != m_Edges.end(); )
+      {
+	if( (*it)->GetSource() == vertex || (*it)->GetTarget() == vertex )
+	{
+	  delete *it;
+	  it = m_Edges.erase(it);
+	}
+	else
+	{
+	  ++it;
+	}
+      }
+    }
+
+    inline void RemoveLastNVertices(int N)
+    {
+      for(int i = 0; i<N; i++){
+	// Read the last inserted vertex from the stack
+	Vertex<T>* vertex = m_VerticesInOrder.top();
+
+	// Remove its adjacent edges
+	RemoveAdjacentEdges(vertex);
+
+	// Iterate over all the vertices to remove the vertex we are looking for
+	for(typename VertexMap::iterator it = m_Vertices.begin(); it != m_Vertices.end(); ++it)
+	{
+	  for(typename std::vector<Vertex<T>*>::iterator itt = (*it).second.begin(); itt != (*it).second.end(); )
+	  {
+	    if( (*itt) == vertex )
+	    {
+	      delete *itt;
+	      itt = (*it).second.erase(itt);
+	    }
+	    else
+	    {
+	      ++itt;
+	    }
+	  }
+	  
+	  // If we have deleted all the vertices for this label, 
+	  // delete the map entry for this label
+	  if((*it).second.size() == 0)
+	  {
+	    m_Vertices.erase(it);
+	  }
+	}
+	
+	m_VerticesInOrder.pop();
+      }
     }
 
     /**
@@ -533,6 +591,11 @@ namespace karto
      * Edges of this graph
      */
     std::vector<Edge<T>*> m_Edges;
+
+    /**
+     * Stack containing the names of the vertices in the order they were added
+     */
+    std::stack<Vertex<T>*> m_VerticesInOrder;
   };  // Graph<T>
 
   ////////////////////////////////////////////////////////////////////////////////////////
