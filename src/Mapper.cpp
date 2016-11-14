@@ -83,6 +83,20 @@ namespace karto
       m_Scans.push_back(pScan);
     }
 
+    inline void RemoveLastScan()
+    {
+       m_RunningScans.pop_back();    
+       m_Scans.pop_back();
+       forEach(LocalizedRangeScanVector, &m_Scans)
+       {
+		       (*iter)->RestorePreviousCorrectedPose();
+       }
+       if(m_Scans.size() > 0)
+       {
+	m_pLastScan = m_Scans[m_Scans.size()-1];
+       }
+    }
+
     /**
      * Gets last scan
      * @param deviceId
@@ -227,6 +241,35 @@ namespace karto
     m_Scans.push_back(pScan);
     m_NextScanId++;
   }
+
+    void MapperSensorManager::RemoveLastScan()
+    {
+	LocalizedRangeScan* pScan = m_Scans.back();
+    	ScanManager* pScanManager = GetScanManager(pScan);
+	pScanManager->RemoveLastScan();
+	m_Scans.pop_back();
+        /*
+	forEach(LocalizedRangeScanVector, &m_Scans)
+        {
+	       if(*iter)
+		       (*iter)->RestorePreviousCorrectedPose();
+	       else
+		       std::cout<<"iterMapperSensorManager is NULL!"<<std::endl;
+        }
+	*/
+	if(m_Scans.size() > 0)
+	{
+		SetLastScan(m_Scans[m_Scans.size()-1]);
+	}
+    }
+
+    void MapperSensorManager::RemoveLastNScans(int N)
+    {
+	    for(int i = 0; i < N; i++)
+	    {
+		    RemoveLastScan();
+	    }
+    }
 
   /**
    * Adds scan to running scans of device that recorded scan
@@ -1081,7 +1124,7 @@ namespace karto
       std::vector<T*> objects;
       forEach(typename std::vector<Vertex<T>*>, &validVertices)
       {
-        objects.push_back((*iter)->GetObject());
+	      objects.push_back((*iter)->GetObject());
       }
 
       return objects;
@@ -1104,7 +1147,7 @@ namespace karto
 
     virtual kt_bool Visit(Vertex<LocalizedRangeScan>* pVertex)
     {
-      LocalizedRangeScan* pScan = pVertex->GetObject();
+	    LocalizedRangeScan* pScan = pVertex->GetObject();
 
       Pose2 pose = pScan->GetReferencePose(m_UseScanBarycenter);
 
@@ -1152,6 +1195,16 @@ namespace karto
       Graph<LocalizedRangeScan>::AddVertex(pScan->GetSensorName(), pVertex);
       if (m_pMapper->m_pScanOptimizer != NULL)
       {
+	      // Before adding the new node, we make all the existing nodes back up
+	      // their corrected poses so we can restore them if needed
+	      MapperSensorManager* pSensorManager = m_pMapper->m_pMapperSensorManager;
+	      const Name& rSensorName = pScan->GetSensorName();
+	      forEach(LocalizedRangeScanVector, &pSensorManager->GetScans(rSensorName))
+	       {
+			       Pose2 corrected_pose = (*iter)->GetCorrectedPose();
+			       (*iter)->AddPoseToCorrectedPoseVector(corrected_pose);
+	       }
+
         m_pMapper->m_pScanOptimizer->AddNode(pVertex);
       }
     }
@@ -1612,6 +1665,29 @@ namespace karto
 
       pSolver->Clear();
     }
+  }
+
+  void MapperGraph::ResetOptimizerGraph()
+  {
+	  ScanSolver* pSolver = m_pMapper->m_pScanOptimizer;
+
+	  if(pSolver != NULL)
+	  {
+		pSolver->ResetGraph();
+	      forEachAs(typename VertexMap, &m_Vertices, indexIter)
+	      {
+		forEach(typename std::vector<Vertex<LocalizedRangeScan>*>, &(indexIter->second))
+		{
+			pSolver->AddNode(*iter);
+		}
+	      }
+		for(int i=0;i<m_Edges.size();i++)
+	  	{
+			pSolver->AddConstraint(m_Edges[i]);
+	  	}
+		pSolver->Compute();
+		
+	  }
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////

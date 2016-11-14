@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <map>
 #include <vector>
+#include <stack>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -5213,6 +5214,19 @@ namespace karto
       return m_CorrectedPose;
     }
 
+    inline void AddPoseToCorrectedPoseVector(const Pose2& rPose)
+    {
+	    m_CorrectedPoseVector.push(rPose);
+    }
+
+    inline void RestorePreviousCorrectedPose()
+    {
+	    std::cout<<"Calling RestorePreviousCorrectedPose. vector has size : "<<m_CorrectedPoseVector.size()<<std::endl;
+	    if(!m_CorrectedPoseVector.empty())
+	    	m_CorrectedPose = m_CorrectedPoseVector.top();
+	    	m_CorrectedPoseVector.pop();
+    }
+
     /**
      * Moves the scan by moving the robot pose to the given location.
      * @param rPose new pose of the robot of this scan
@@ -5429,6 +5443,7 @@ namespace karto
      */
     Pose2 m_CorrectedPose;
 
+    std::stack<Pose2> m_CorrectedPoseVector;
   protected:
     /**
      * Average of all the point readings

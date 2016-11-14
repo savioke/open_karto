@@ -271,6 +271,26 @@ namespace karto
       return vertices;
     }
 
+    /**
+     * Remove the specified edge from the edge list.
+     * Note that we give the responsibility of deleting the 
+     * edge pointer to the graph object.
+     */
+    inline void RemoveEdge(const Edge<T>* edge)
+    {
+      for(typename std::vector<Edge<T>*>::iterator it = m_Edges.begin(); it != m_Edges.end(); )
+      {
+	if(*it == edge)
+	{
+	  it = m_Edges.erase(it);
+	}
+	else
+	{
+	  ++it;
+	}
+      }
+    }
+
   private:
     /**
      * Adds the given edge to this vertex's edge list
@@ -446,8 +466,7 @@ namespace karto
     /**
      * Maps names to vector of vertices
      */
-    typedef std::map<Name, std::vector<Vertex<T>*> > VertexMap;
-
+    typedef std::map<Name, std::vector<Vertex<T>*> > VertexMap;    
   public:
     /**
      * Default constructor
@@ -488,12 +507,16 @@ namespace karto
     /**
      * Remove all edges adjacent to a specified Vertex
      */
-    inline void RemoveAdjacentEdges(const Vertex<T>* vertex)
+    inline void RemoveAdjacentEdges(Vertex<T>* vertex)
     {
       for(typename std::vector<Edge<T>*>::iterator it = m_Edges.begin(); it != m_Edges.end(); )
       {
-	if( (*it)->GetSource() == vertex || (*it)->GetTarget() == vertex )
+	Vertex<T>* pSource = (*it)->GetSource();
+	Vertex<T>* pTarget = (*it)->GetTarget();
+	if( pSource == vertex || pTarget == vertex )
 	{
+	  pSource->RemoveEdge(*it);
+	  pTarget->RemoveEdge(*it);
 	  delete *it;
 	  it = m_Edges.erase(it);
 	}
@@ -672,6 +695,7 @@ namespace karto
       return m_pLoopScanMatcher;
     }
 
+    void ResetOptimizerGraph();
   private:
     /**
      * Gets the vertex associated with the given scan
@@ -844,6 +868,11 @@ namespace karto
      * Resets the solver
      */
     virtual void Clear() {};
+
+    /**
+     * Resets the solver and the graph used by the solver
+     */
+    virtual void ResetGraph() {};
   };  // ScanSolver
 
   ////////////////////////////////////////////////////////////////////////////////////////
@@ -1333,6 +1362,9 @@ namespace karto
      */
     void AddScan(LocalizedRangeScan* pScan);
 
+    void RemoveLastScan();
+
+    void RemoveLastNScans(int N);
     /**
      * Adds scan to running scans of device that recorded scan
      * @param pScan
@@ -1743,6 +1775,14 @@ namespace karto
 
   public:
     void SetUseScanMatching(kt_bool val) { m_pUseScanMatching->SetValue(val); }
+    void MyRemoveLastNVertices(int n){ 
+	    m_pGraph->RemoveLastNVertices(n);
+	    std::cout<<"MyRemoveLastNVertices2"<<std::endl;
+	    std::cout<<"scans size before: "<<m_pMapperSensorManager->GetAllScans().size()<<std::endl;
+	    m_pMapperSensorManager->RemoveLastNScans(n);
+	    std::cout<<"scans size after: "<<m_pMapperSensorManager->GetAllScans().size()<<std::endl;
+	    m_pGraph->ResetOptimizerGraph();
+    }
 
   private:
     kt_bool m_Initialized;
