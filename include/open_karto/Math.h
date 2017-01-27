@@ -15,13 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __KARTO_MATH__
-#define __KARTO_MATH__
+#ifndef OPEN_KARTO_MATH_H
+#define OPEN_KARTO_MATH_H
 
 #include <assert.h>
 #include <math.h>
+#include <limits>
 
-#include "Types.h"
+#include <open_karto/Types.h>
 
 namespace karto
 {
@@ -38,6 +39,12 @@ namespace karto
    * Lets define a small number!
    */
   const kt_double KT_TOLERANCE  = 1e-06;
+
+  /**
+     * Lets define max value of kt_int32s (int32_t) to use it to mark invalid scans
+     */
+
+  const kt_int32s INVALID_SCAN = std::numeric_limits<kt_int32s>::max();
 
   namespace math
   {
@@ -238,8 +245,8 @@ namespace karto
     {
       return static_cast<T> ((value + (alignValue - 1)) & ~(alignValue - 1));
     }
-  } // Math
+  }  // namespace math
 
-}
+}  // namespace karto
 
-#endif // __KARTO_MATH__
+#endif  // OPEN_KARTO_MATH_H
